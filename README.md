@@ -258,7 +258,7 @@ To modify the load test behavior, edit `locustfile.py`:
 ├── main.py                 # FastAPI application with metrics
 ├── train_model.py          # Trains and saves the ML model
 ├── locustfile.py           # Locust load testing configuration
-├── pyproject.toml          # Python dependencies (replaces requirements.txt)
+├── pyproject.toml          # Python dependencies
 ├── Dockerfile              # Builds the FastAPI container
 ├── docker-compose.yml      # Orchestrates all services
 ├── prometheus.yml          # Prometheus configuration
