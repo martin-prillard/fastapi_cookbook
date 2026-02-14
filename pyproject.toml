@@ -1,13 +1,9 @@
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
-name = "fastapi-monitoring"
+name = "fastapi-cookbook"
 version = "1.0.0"
-description = "FastAPI ML API with Prometheus and Grafana monitoring"
+description = "FastAPI cookbook"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.104.0",
     "uvicorn>=0.24.0",
@@ -23,7 +19,3 @@ dev = [
     "pytest-asyncio>=0.21.0",
     "httpx>=0.25.0",
 ]
-
-[tool.setuptools]
-packages = []
-
