@@ -2,10 +2,11 @@ import numpy as np
 from app.celery_app import celery
 from app.load_model import load_model
 
-model = load_model()
 
 @celery.task(name="predict_batch_task")
 def predict_batch_task(batch):
+    model = load_model()
+
     features = [
         [
             item["sepal_length"],

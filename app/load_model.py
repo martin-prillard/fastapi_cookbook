@@ -1,9 +1,8 @@
 import mlflow
 
-model_name = "iris_rf_model"
-stage = "latest"
+from app.constants import MODEL_NAME, MODEL_STAGE
 
-MODEL_URI = f"models:/{model_name}/{stage}"
+MODEL_URI = f"models:/{MODEL_NAME}/{MODEL_STAGE}"
 
 model = None
 

@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
+from app.constants import MODEL_NAME
 
 mlflow.set_experiment("iris_classification")
 
@@ -40,5 +41,5 @@ with mlflow.start_run():
         name="model",
         signature=signature,
         input_example=input_example,
-        registered_model_name="iris_rf_model"
+        registered_model_name=MODEL_NAME
     )

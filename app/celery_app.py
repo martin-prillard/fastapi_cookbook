@@ -1,9 +1,11 @@
 from celery import Celery
 
+from app.constants import REDIS_HOST
+
 celery = Celery(
     "iris_tasks",
-    broker="redis://redis:6379/0",
-    backend="redis://redis:6379/0",
+    broker=f"redis://{REDIS_HOST}:6379/0",
+    backend=f"redis://{REDIS_HOST}:6379/0",
 )
 
 celery.conf.update(
@@ -13,3 +15,5 @@ celery.conf.update(
     timezone="UTC",
     enable_utc=True,
 )
+
+celery.autodiscover_tasks(["app"])
