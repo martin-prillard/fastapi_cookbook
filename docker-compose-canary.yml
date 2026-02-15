@@ -1,27 +1,22 @@
-version: "3.9"
-
 services:
-
   api-prod:
-    image: api:latest
+    build: .
     environment:
-      - MODEL_TARGET=Production
+      - MODEL_STAGE=Production
     ports:
       - "8001:8000"
-
   api-canary:
-    image: api:latest
+    build: .
     environment:
-      - MODEL_TARGET=Staging
+      - MODEL_STAGE=Staging
     ports:
       - "8002:8000"
-
   nginx:
     image: nginx:latest
     ports:
       - "8000:80"
     volumes:
-      - .docker/nginx.conf:/etc/nginx/nginx.conf
+      - .nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - api-prod
       - api-canary

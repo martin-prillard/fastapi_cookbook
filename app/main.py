@@ -21,6 +21,7 @@ from fastapi.responses import Response
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 from app.celery_app import celery
+from app.constants import MODEL_STAGE
 from app.data_models import IrisInput
 from app.load_model import load_model
 from app.monitor import REQUEST_COUNT, REQUEST_LATENCY
@@ -94,7 +95,7 @@ def predict(data: IrisInput) -> Dict[str, int]:
             data.petal_width,
         ]]
         pred = int(model.predict(np.array(features))[0])
-        return {"prediction": pred}
+        return {"prediction": pred, "model_stage": MODEL_STAGE}
     except Exception as e:
         raise e
     finally:
