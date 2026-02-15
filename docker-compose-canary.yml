@@ -2,13 +2,13 @@ services:
   api-prod:
     build: .
     environment:
-      - MODEL_STAGE=Production
+      - MODEL_STAGE=1
     ports:
       - "8001:8000"
   api-canary:
     build: .
     environment:
-      - MODEL_STAGE=Staging
+      - MODEL_STAGE=2
     ports:
       - "8002:8000"
   nginx:
@@ -16,7 +16,7 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - .nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - api-prod
       - api-canary

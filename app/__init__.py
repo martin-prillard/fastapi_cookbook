@@ -1,3 +1,4 @@
 import mlflow
+from app.constants import MLFLOW_HOST
 
-mlflow.set_tracking_uri("http://89.58.44.97:5000/")
+mlflow.set_tracking_uri(MLFLOW_HOST)

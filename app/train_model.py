@@ -7,8 +7,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
-from constants import MODEL_NAME
+from constants import MODEL_NAME, MLFLOW_HOST
 
+mlflow.set_tracking_uri(MLFLOW_HOST)
 mlflow.set_experiment("iris_classification")
 
 X, y = load_iris(return_X_y=True)
