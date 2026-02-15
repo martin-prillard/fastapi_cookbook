@@ -129,5 +129,5 @@ uv run python train_model.py
 
 3. Run the API:
 ```bash
-uv run uvicorn main:app --reload
+uv run uvicorn app.main:app --reload
 ```

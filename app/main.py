@@ -6,88 +6,33 @@ using a pre-trained machine learning model. The API includes Prometheus
 metrics for monitoring request counts and latency.
 
 Endpoints:
-    GET /: Health check endpoint
+    GET /status: Health check endpoint
     POST /predict: Predict Iris flower species from input features
     GET /metrics: Prometheus metrics endpoint
 """
-
-from fastapi import FastAPI, HTTPException, status
-from pydantic import BaseModel, Field
-from prometheus_client import (
-    Counter,
-    Histogram,
-    generate_latest,
-    CONTENT_TYPE_LATEST,
-)
-from fastapi.responses import Response
-import joblib
 import time
-from typing import Dict, Any
+from typing import Dict, List
+
+from celery.result import AsyncResult
+from fastapi import HTTPException
+import numpy as np
+from fastapi import FastAPI
+from fastapi.responses import Response
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+
+from app.celery_app import celery
+from app.data_models import IrisInput
+from app.load_model import load_model
+from app.monitor import REQUEST_COUNT, REQUEST_LATENCY
+from app.tasks import predict_batch_task
 
 app = FastAPI(title="Iris ML API", version="1.0")
+model = load_model()
 
-# Load the pre-trained machine learning model
-model = joblib.load("model.joblib")
-
-# Prometheus metrics
-REQUEST_COUNT = Counter(
-    "api_requests_total",
-    "Total number of API requests",
-)
-REQUEST_LATENCY = Histogram(
-    "api_request_latency_seconds",
-    "Request latency in seconds",
-)
-
-
-class IrisInput(BaseModel):
+@app.get("/status")
+def status() -> Dict[str, str]:
     """
-    Input model for Iris flower classification.
-
-    This model represents the four features required for predicting
-    the Iris flower species: sepal and petal dimensions.
-
-    Attributes:
-        sepal_length: Length of the sepal in centimeters.
-        sepal_width: Width of the sepal in centimeters.
-        petal_length: Length of the petal in centimeters.
-        petal_width: Width of the petal in centimeters.
-
-    Example:
-        {
-            "sepal_length": 5.1,
-            "sepal_width": 3.5,
-            "petal_length": 1.4,
-            "petal_width": 0.2
-        }
-    """
-
-    sepal_length: float = Field(
-        ...,
-        description="Sepal length in centimeters",
-        gt=0,
-    )
-    sepal_width: float = Field(
-        ...,
-        description="Sepal width in centimeters",
-        gt=0,
-    )
-    petal_length: float = Field(
-        ...,
-        description="Petal length in centimeters",
-        gt=0,
-    )
-    petal_width: float = Field(
-        ...,
-        description="Petal width in centimeters",
-        gt=0,
-    )
-
-
-@app.get("/", status_code=status.HTTP_200_OK)
-def root() -> Dict[str, str]:
-    """
-    Root endpoint for health check.
+    Status endpoint for health check.
 
     Returns a simple message indicating that the API is running.
     This endpoint can be used to verify that the service is up
@@ -97,12 +42,12 @@ def root() -> Dict[str, str]:
         Dict[str, str]: A dictionary containing a status message.
 
     Example:
-        >>> response = {"message": "FastAPI ML API is running"}
+        >>> response = {"status": "OK"}
     """
-    return {"message": "FastAPI ML API is running"}
+    return {"status": "OK"}
 
 
-@app.post("/predict", status_code=status.HTTP_200_OK)
+@app.post("/predict")
 def predict(data: IrisInput) -> Dict[str, int]:
     """
     Predict Iris flower species from input features.
@@ -148,15 +93,34 @@ def predict(data: IrisInput) -> Dict[str, int]:
             data.petal_length,
             data.petal_width,
         ]]
-        pred = int(model.predict(features)[0])
+        pred = int(model.predict(np.array(features))[0])
         return {"prediction": pred}
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e),
-        )
+        raise e
     finally:
         REQUEST_LATENCY.observe(time.time() - start)
+
+
+@app.post("/predict_batch")
+async def predict_batch(data: List[IrisInput]):
+    task = predict_batch_task.delay([item.model_dump() for item in data])
+    return {"task_id": task.id}
+
+
+@app.get("/predict_batch/{task_id}")
+async def get_batch_result(task_id: str):
+    task = AsyncResult(task_id, app=celery)
+
+    if task.state == "PENDING":
+        return {"status": "pending"}
+
+    if task.state == "FAILURE":
+        raise HTTPException(status_code=500, detail=str(task.result))
+
+    if task.state == "SUCCESS":
+        return {"status": "done", "predictions": task.result}
+    return {"status": task.state}
+
 
 
 @app.get("/metrics")

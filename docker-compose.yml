@@ -1,50 +1,31 @@
 services:
   fastapi:
     build: .
-    container_name: fastapi_app
     ports:
       - "8000:8000"
-    networks:
-      - monitoring
 
   prometheus:
     image: prom/prometheus:latest
-    container_name: prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
-    networks:
-      - monitoring
 
   grafana:
     image: grafana/grafana:latest
-    container_name: grafana
     ports:
       - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
-    volumes:
-      - ./grafana/provisioning/dashboards/dashboard.yml:/etc/grafana/provisioning/dashboards/dashboard.yml
-      - ./grafana/provisioning/dashboards:/var/lib/grafana/dashboards
-      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-    networks:
-      - monitoring
 
   locust:
     image: locustio/locust:latest
-    container_name: locust
     ports:
       - "8089:8089"
     volumes:
       - ./locustfile.py:/locust/locustfile.py
     command: -f /locust/locustfile.py --host=http://fastapi:8000
-    networks:
-      - monitoring
     depends_on:
       - fastapi
 
-networks:
-  monitoring:
-    driver: bridge

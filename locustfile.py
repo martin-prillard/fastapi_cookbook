@@ -42,7 +42,7 @@ class FastAPIUser(HttpUser):
         Test de l'endpoint de santé.
         Poids 1 : exécuté moins fréquemment que predict.
         """
-        self.client.get("/")
+        self.client.get("/status")
     
     @task(1)
     def get_metrics(self):
