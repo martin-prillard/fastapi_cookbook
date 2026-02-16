@@ -20,7 +20,7 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - ./grafana/provisioning/dashboards/dashboard.yml:/etc/grafana/provisioning/dashboards/dashboard.yml
-      - ./grafana/provisioning/dashboards:/var/lib/grafana/dashboardsExpand commentComment on line L30Resolved
+      - ./grafana/provisioning/dashboards:/var/lib/grafana/dashboards
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
 
   locust:
