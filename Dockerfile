@@ -3,6 +3,7 @@
 ############################
 FROM python:3.13-slim
 
+WORKDIR /app
 ############################
 # Environment
 ############################
@@ -46,7 +47,6 @@ RUN pip install --no-cache-dir --upgrade pip uv \
 # Switch to non-root
 ############################
 USER ${USERNAME}
-WORKDIR /workspace
 
 ############################
 # Python dependencies
@@ -55,6 +55,7 @@ COPY --chown=${USERNAME}:${USERNAME} pyproject.toml uv.lock* ./
 
 RUN uv sync --locked
 
+COPY --chown=${USERNAME}:${USERNAME} app/ app/
 ############################
 # Jupyter kernel
 ############################
