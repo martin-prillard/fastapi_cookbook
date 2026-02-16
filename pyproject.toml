@@ -5,12 +5,15 @@ description = "FastAPI cookbook"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "mlflow==v3.9.0",
     "fastapi>=0.104.0",
     "uvicorn>=0.24.0",
     "scikit-learn>=1.3.0",
-    "joblib>=1.3.0",
     "pydantic>=2.0.0",
     "prometheus-client>=0.18.0",
+    "locust>=2.43.3",
+    "celery>=5.6.2",
+    "redis>=7.1.1",
 ]
 
 [project.optional-dependencies]
