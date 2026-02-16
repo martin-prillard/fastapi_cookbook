@@ -60,8 +60,8 @@ RUN uv sync --locked
 ############################
 RUN uv pip install --no-cache-dir ipykernel \
  && python -m ipykernel install --user \
-    --name graph-cookbook \
-    --display-name "Python (graph-cookbook)"
+    --name cookbook \
+    --display-name "Python (cookbook)"
 
 ############################
 # Runtime
